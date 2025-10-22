@@ -89,20 +89,14 @@ export async function registerCsvParseWorker() {
     const { site, importId, source, storageLocation, isR2Storage, organization, startDate, endDate } = job.data;
 
     try {
-      const importableEvents = await ImportLimiter.countImportableEvents(organization);
-      if (importableEvents <= 0) {
-        await ImportStatusManager.updateStatus(importId, "failed", "Event import limit reached");
-        const deleteResult = await deleteImportFile(storageLocation, isR2Storage);
-        if (!deleteResult.success) {
-          console.warn(`[Import ${importId}] File cleanup failed: ${deleteResult.error}`);
-        }
-        return;
-      }
+      const quotaTracker = await ImportLimiter.createQuotaTracker(organization);
 
       const chunkSize = 5000;
       let chunk: UmamiEvent[] = [];
-      let rowsProcessed = 0;
-      let chunksSent = 0; // Track total chunks sent
+      let totalAccepted = 0;
+      let totalSkippedQuota = 0;
+      let totalSkippedDate = 0;
+      let chunksSent = 0;
 
       const stream = isR2Storage
         ? await createR2FileStream(storageLocation, source)
@@ -110,20 +104,29 @@ export async function registerCsvParseWorker() {
 
       await ImportStatusManager.updateStatus(importId, "processing");
 
-      // Create date filter once for performance (not per-row)
       const isDateInRange = createDateRangeFilter(startDate, endDate);
 
       for await (const data of stream) {
-        if (!data.created_at || !isDateInRange(data.created_at)) {
+        // Skip rows with missing or invalid dates
+        if (!data.created_at) {
           continue;
         }
 
-        if (rowsProcessed >= importableEvents) {
-          break;
+        // Apply user-specified date range filter
+        if (!isDateInRange(data.created_at)) {
+          totalSkippedDate++;
+          continue;
         }
 
+        // Check per-month quota (includes historical window check)
+        if (!quotaTracker.canImportEvent(data.created_at)) {
+          totalSkippedQuota++;
+          continue;
+        }
+
+        // Event passed all filters - add to chunk
         chunk.push(data);
-        rowsProcessed++;
+        totalAccepted++;
 
         if (chunk.length >= chunkSize) {
           await jobQueue.send(DATA_INSERT_QUEUE, {
@@ -137,6 +140,26 @@ export async function registerCsvParseWorker() {
           chunksSent++;
           chunk = [];
         }
+      }
+
+      console.info(
+        `[Import ${importId}] Processed CSV: ${totalAccepted} events accepted, ` +
+          `${totalSkippedQuota} skipped (quota/window), ${totalSkippedDate} skipped (date filter)`
+      );
+
+      // Check if no events could be imported due to quotas
+      if (totalAccepted === 0 && totalSkippedQuota > 0) {
+        const quotaSummary = quotaTracker.getSummary();
+        const errorMessage =
+          `No events could be imported. All ${totalSkippedQuota} events exceeded monthly quotas or fell outside the ${quotaSummary.totalMonthsInWindow}-month historical window. ` +
+          `${quotaSummary.monthsAtCapacity} of ${quotaSummary.totalMonthsInWindow} months are at full capacity. ` +
+          `Try importing newer data or upgrade your plan for higher monthly quotas.`;
+        await ImportStatusManager.updateStatus(importId, "failed", errorMessage);
+        const deleteResult = await deleteImportFile(storageLocation, isR2Storage);
+        if (!deleteResult.success) {
+          console.warn(`[Import ${importId}] File cleanup failed: ${deleteResult.error}`);
+        }
+        return;
       }
 
       // Send final chunk if any data remains

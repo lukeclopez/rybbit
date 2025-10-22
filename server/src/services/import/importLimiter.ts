@@ -1,10 +1,10 @@
 import { IS_CLOUD } from "../../lib/const.js";
 import { db } from "../../db/postgres/postgres.js";
-import { and, count, eq, inArray, sum } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 import { importStatus, sites } from "../../db/postgres/schema.js";
+import { ImportQuotaTracker } from "./importQuotaChecker.js";
 
 export class ImportLimiter {
-  private static readonly IMPORTED_EVENTS_LIMIT = 1_000_000;
   private static readonly CONCURRENT_IMPORT_LIMIT = 1;
 
   static async checkConcurrentImportLimit(siteId: number): Promise<
@@ -51,16 +51,7 @@ export class ImportLimiter {
     return { allowed: true, organizationId: siteResult.organizationId };
   }
 
-  static async countImportableEvents(organizationId: string): Promise<number> {
-    if (!IS_CLOUD) {
-      return Infinity;
-    }
-
-    const [importedEvents] = await db
-      .select({ total: sum(importStatus.importedEvents) })
-      .from(importStatus)
-      .where(eq(importStatus.organizationId, organizationId));
-
-    return this.IMPORTED_EVENTS_LIMIT - Number(importedEvents.total ?? 0);
+  static async createQuotaTracker(organizationId: string): Promise<ImportQuotaTracker> {
+    return ImportQuotaTracker.create(organizationId);
   }
 }

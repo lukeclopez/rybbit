@@ -1,4 +1,10 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+  ListObjectsV2Command,
+} from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { NodeHttpHandler } from "@smithy/node-http-handler";
 import { Readable } from "stream";
@@ -274,6 +280,89 @@ class R2StorageService {
     } catch (error) {
       this.logger.error({ error, key }, "Failed to delete import file");
       // Non-critical error, log but don't throw
+    }
+  }
+
+  /**
+   * List all import files in R2
+   * Returns array of objects with key and lastModified date
+   */
+  async listImportFiles(): Promise<Array<{ key: string; lastModified: Date }>> {
+    if (!this.enabled || !this.client) {
+      return [];
+    }
+
+    try {
+      const allFiles: Array<{ key: string; lastModified: Date }> = [];
+      let continuationToken: string | undefined;
+
+      do {
+        const response = await this.client.send(
+          new ListObjectsV2Command({
+            Bucket: this.bucketName,
+            Prefix: "imports/",
+            ContinuationToken: continuationToken,
+          })
+        );
+
+        if (response.Contents) {
+          for (const obj of response.Contents) {
+            if (obj.Key && obj.LastModified) {
+              allFiles.push({
+                key: obj.Key,
+                lastModified: obj.LastModified,
+              });
+            }
+          }
+        }
+
+        continuationToken = response.NextContinuationToken;
+      } while (continuationToken);
+
+      this.logger.info({ count: allFiles.length }, "Listed import files");
+      return allFiles;
+    } catch (error) {
+      this.logger.error({ error }, "Failed to list import files");
+      throw error;
+    }
+  }
+
+  /**
+   * Delete all import files older than the specified number of days
+   * Returns count of deleted files
+   */
+  async deleteOldImportFiles(daysOld: number = 1): Promise<number> {
+    if (!this.enabled || !this.client) {
+      return 0;
+    }
+
+    try {
+      const files = await this.listImportFiles();
+      const cutoffDate = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000);
+
+      const filesToDelete = files.filter(file => file.lastModified < cutoffDate);
+
+      this.logger.info(
+        { total: files.length, toDelete: filesToDelete.length, cutoffDate },
+        "Deleting old import files"
+      );
+
+      let deletedCount = 0;
+      for (const file of filesToDelete) {
+        try {
+          await this.deleteImportFile(file.key);
+          deletedCount++;
+        } catch (error) {
+          this.logger.error({ error, key: file.key }, "Failed to delete old import file");
+          // Continue with other files even if one fails
+        }
+      }
+
+      this.logger.info({ deletedCount }, "Completed deleting old import files");
+      return deletedCount;
+    } catch (error) {
+      this.logger.error({ error }, "Failed to delete old import files");
+      throw error;
     }
   }
 }

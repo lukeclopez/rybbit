@@ -1,9 +1,5 @@
 import * as cron from "node-cron";
-import { DateTime } from "luxon";
-import { db } from "../../db/postgres/postgres.js";
-import { importStatus } from "../../db/postgres/schema.js";
-import { sql } from "drizzle-orm";
-import { deleteImportFile, getImportStorageLocation } from "./utils.js";
+import { r2Storage } from "../storage/r2StorageService.js";
 
 class ImportCleanupService {
   private cleanupTask: cron.ScheduledTask | null = null;
@@ -34,56 +30,17 @@ class ImportCleanupService {
   }
 
   /**
-   * Clean up orphaned import files that are more than 1 day old
-   * and belong to completed or failed imports.
+   * Clean up orphaned R2 import files that are more than 1 day old.
    */
   private async cleanupOrphanedFiles() {
-    console.info("[ImportCleanup] Starting cleanup of orphaned import files");
-
-    const oneDayAgo = DateTime.utc().minus({ days: 1 }).toISO();
-
-    try {
-      // Find completed/failed imports older than 1 day that still have files
-      const oldImports = await db
-        .select({
-          importId: importStatus.importId,
-          fileName: importStatus.fileName,
-        })
-        .from(importStatus)
-        .where(
-          sql`${importStatus.status} IN ('completed', 'failed')
-              AND ${importStatus.startedAt} < ${oneDayAgo}`
-        );
-
-      console.info(`[ImportCleanup] Found ${oldImports.length} old imports to check`);
-
-      let deletedCount = 0;
-      let failedCount = 0;
-
-      for (const importRecord of oldImports) {
-        const storage = getImportStorageLocation(importRecord.importId, importRecord.fileName);
-
-        // Attempt to delete the file
-        const result = await deleteImportFile(storage.location, storage.isR2);
-
-        if (result.success) {
-          deletedCount++;
-        } else {
-          // File might already be deleted or doesn't exist - this is not an error
-          if (result.error?.includes("ENOENT") || result.error?.includes("NoSuchKey")) {
-            // File doesn't exist, which is fine
-            continue;
-          }
-          failedCount++;
-          console.warn(`[ImportCleanup] Failed to delete file for import ${importRecord.importId}: ${result.error}`);
-        }
+    if (r2Storage.isEnabled()) {
+      console.info("[ImportCleanup] Starting cleanup of old R2 import files");
+      try {
+        const r2DeletedCount = await r2Storage.deleteOldImportFiles(1);
+        console.info(`[ImportCleanup] Deleted ${r2DeletedCount} old files from R2`);
+      } catch (error) {
+        console.error("[ImportCleanup] Error cleaning up R2 files:", error);
       }
-
-      console.info(
-        `[ImportCleanup] Cleanup complete: ${deletedCount} files deleted, ${failedCount} failures, ${oldImports.length - deletedCount - failedCount} already gone`
-      );
-    } catch (error) {
-      console.error("[ImportCleanup] Error during cleanup:", error);
     }
   }
 

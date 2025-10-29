@@ -17,13 +17,11 @@ export async function registerDataInsertWorker() {
   const jobQueue = getJobQueue();
 
   await jobQueue.work<DataInsertJob>(DATA_INSERT_QUEUE, async job => {
-    const { site, importId, platform, chunk, chunkNumber, totalChunks, allChunksSent } = job;
+    const { site, importId, platform, chunk, allChunksSent } = job;
 
-    // Handle finalization signal
     if (allChunksSent) {
       try {
         await updateImportStatus(importId, "completed");
-        console.log(`[Import ${importId}] Completed successfully (${totalChunks ?? 0} chunks processed)`);
         return;
       } catch (error) {
         console.error(`[Import ${importId}] Failed to mark as completed:`, error);
@@ -38,7 +36,6 @@ export async function registerDataInsertWorker() {
       }
     }
 
-    // Process data chunk
     try {
       const dataMapper = getImportDataMapping(platform);
       const transformedRecords = dataMapper.transform(chunk, site, importId);
@@ -60,8 +57,6 @@ export async function registerDataInsertWorker() {
         );
         // Don't throw - data is safely in ClickHouse, progress can be off slightly
       }
-
-      console.log(`[Import ${importId}] Chunk ${chunkNumber ?? "?"} processed: ${transformedRecords.length} events`);
     } catch (error) {
       console.error(`[Import ${importId}] ClickHouse insert failed:`, error);
 

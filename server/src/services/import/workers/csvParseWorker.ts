@@ -94,7 +94,6 @@ export async function registerCsvParseWorker() {
       let totalAccepted = 0;
       let totalSkippedQuota = 0;
       let totalSkippedDate = 0;
-      let chunksSent = 0;
 
       stream = isR2Storage
         ? await createR2FileStream(storageLocation, platform)
@@ -145,10 +144,8 @@ export async function registerCsvParseWorker() {
             importId,
             platform,
             chunk,
-            chunkNumber: chunksSent,
             allChunksSent: false,
           });
-          chunksSent++;
           chunk = [];
         }
       }
@@ -180,10 +177,8 @@ export async function registerCsvParseWorker() {
           importId,
           platform,
           chunk,
-          chunkNumber: chunksSent,
           allChunksSent: false,
         });
-        chunksSent++;
       }
 
       // Send finalization signal with total chunk count
@@ -192,7 +187,6 @@ export async function registerCsvParseWorker() {
         importId,
         platform,
         chunk: [],
-        totalChunks: chunksSent,
         allChunksSent: true,
       });
     } catch (error) {

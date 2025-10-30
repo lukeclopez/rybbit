@@ -352,7 +352,9 @@ server.get("/api/session-replay/list/:site", getSessionReplays);
 server.get("/api/session-replay/:sessionId/:site", getSessionReplayEvents);
 
 // Imports
-server.post("/api/import-site-data/:site", importSiteData);
+server.post("/api/import-site-data/:site", {
+  bodyLimit: IS_CLOUD ? 500 * 1024 * 1024 : 50 * 1024 * 1024 * 1024, // 500 MB for cloud, 50 GB for self-hosted (matches multipart fileSize)
+}, importSiteData);
 server.get("/api/get-site-imports/:site", getSiteImports);
 server.delete("/api/delete-site-import/:site/:importId", deleteSiteImport);
 

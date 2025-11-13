@@ -25,7 +25,6 @@ export function useGetSiteImports(site: number) {
     queryKey: ["get-site-imports", site],
     queryFn: async () => await authedFetch<APIResponse<GetSiteImportsResponse[]>>(`/get-site-imports/${site}`),
     refetchInterval: data => {
-      // Check if there are any imports that haven't completed yet (completedAt is null)
       const hasActiveImports = data.state.data?.data.some(imp => imp.completedAt === null);
       return hasActiveImports ? 5000 : false;
     },

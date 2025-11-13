@@ -20,7 +20,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, FileText, AlertCircle, CheckCircle2, Clock, Loader2, Trash2, Info } from "lucide-react";
+import { Upload, FileText, AlertCircle, CheckCircle2, Loader2, Trash2 } from "lucide-react";
 import { useGetSiteImports, useCreateSiteImport, useDeleteSiteImport } from "@/api/admin/import";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { IS_CLOUD } from "@/lib/const";
@@ -61,9 +61,7 @@ function formatFileSize(bytes: number): string {
 
 export function ImportManager({ siteId, disabled }: ImportManagerProps) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [deleteImportId, setDeleteImportId] = useState<string | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [importToDelete, setImportToDelete] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<"umami">("umami");
   const [fileError, setFileError] = useState<string>("");
@@ -91,15 +89,14 @@ export function ImportManager({ siteId, disabled }: ImportManagerProps) {
     if (!selectedFile || fileError) return;
 
     if (selectedFile.size > CONFIRM_THRESHOLD) {
-      setPendingFile(selectedFile);
       setShowConfirmDialog(true);
     } else {
-      executeImport(selectedFile);
+      executeImport();
     }
   };
 
-  const executeImport = (file: File) => {
-    if (!file) return;
+  const executeImport = () => {
+    if (!selectedFile) return;
 
     createImportMutation.mutate(
       { platform: selectedPlatform },
@@ -110,7 +107,7 @@ export function ImportManager({ siteId, disabled }: ImportManagerProps) {
           workerManagerRef.current = new CsvParser();
 
           workerManagerRef.current.startImport(
-            file,
+            selectedFile,
             siteId,
             importId,
             selectedPlatform,
@@ -124,9 +121,6 @@ export function ImportManager({ siteId, disabled }: ImportManagerProps) {
             fileInputRef.current.value = "";
           }
         },
-        onError: error => {
-          console.error("Failed to create import:", error);
-        },
       }
     );
 
@@ -134,20 +128,17 @@ export function ImportManager({ siteId, disabled }: ImportManagerProps) {
   };
 
   const handleDeleteClick = (importId: string) => {
-    setDeleteImportId(importId);
-    setShowDeleteDialog(true);
+    setImportToDelete(importId);
   };
 
   const handleDeleteConfirm = () => {
-    if (deleteImportId) {
-      deleteMutation.mutate(deleteImportId, {
+    if (importToDelete) {
+      deleteMutation.mutate(importToDelete, {
         onSuccess: () => {
-          setDeleteImportId(null);
-          setShowDeleteDialog(false);
+          setImportToDelete(null);
         },
         onError: () => {
-          setDeleteImportId(null);
-          setShowDeleteDialog(false);
+          setImportToDelete(null);
         },
       });
     }
@@ -181,7 +172,6 @@ export function ImportManager({ siteId, disabled }: ImportManagerProps) {
     });
   }, [data?.data]);
 
-  // Check if there's an active import (cloud only)
   const hasActiveImport = IS_CLOUD && sortedImports.some(imp => imp.completedAt === null);
 
   const isImportDisabled =
@@ -440,15 +430,13 @@ export function ImportManager({ siteId, disabled }: ImportManagerProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => pendingFile && executeImport(pendingFile)}>
-              Yes, Import File
-            </AlertDialogAction>
+            <AlertDialogAction onClick={executeImport}>Yes, Import File</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialog open={!!importToDelete} onOpenChange={open => !open && setImportToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Import</AlertDialogTitle>

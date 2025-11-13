@@ -138,7 +138,8 @@ export default function HomePage() {
           The Modern Google Analytics Replacement
         </h1>
         <h2 className="text-base md:text-xl pt-4 md:pt-6 px-4 tracking-tight max-w-4xl text-center text-neutral-300 font-light">
-          Next-gen, open source, lightweight, cookieless web & product analytics for everyone.
+          Rybbit is powerful, lightweight, and super easy to use analytics. Cookieless and GDPR compliant. Hosted on EU
+          infrastructure in Germany 🇪🇺
         </h2>
 
         <div className="flex flex-col items-center my-8 md:my-10">

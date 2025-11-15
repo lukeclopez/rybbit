@@ -60,29 +60,34 @@ export async function createSiteImport(request: FastifyRequest<CreateSiteImportR
       return reply.status(429).send({ error: "Only 1 concurrent import allowed per organization" });
     }
 
-    const quotaTracker = await importQuotaManager.getTracker(organizationId);
-    const summary = quotaTracker.getSummary();
+    try {
+      const quotaTracker = await importQuotaManager.getTracker(organizationId);
+      const summary = quotaTracker.getSummary();
 
-    const earliestAllowedDate = DateTime.fromFormat(summary.oldestAllowedMonth + "01", "yyyyMMdd", {
-      zone: "utc",
-    }).toFormat("yyyy-MM-dd");
-    const latestAllowedDate = DateTime.utc().toFormat("yyyy-MM-dd");
+      const earliestAllowedDate = DateTime.fromFormat(summary.oldestAllowedMonth + "01", "yyyyMMdd", {
+        zone: "utc",
+      }).toFormat("yyyy-MM-dd");
+      const latestAllowedDate = DateTime.utc().toFormat("yyyy-MM-dd");
 
-    const importRecord = await createImport({
-      siteId,
-      organizationId,
-      platform,
-    });
+      const importRecord = await createImport({
+        siteId,
+        organizationId,
+        platform,
+      });
 
-    return reply.send({
-      data: {
-        importId: importRecord.importId,
-        allowedDateRange: {
-          earliestAllowedDate,
-          latestAllowedDate,
+      return reply.send({
+        data: {
+          importId: importRecord.importId,
+          allowedDateRange: {
+            earliestAllowedDate,
+            latestAllowedDate,
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      importQuotaManager.completeImport(organizationId);
+      throw error;
+    }
   } catch (error) {
     console.error("Error creating import:", error);
     return reply.status(500).send({ error: "Internal server error" });

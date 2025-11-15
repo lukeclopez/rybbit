@@ -107,6 +107,10 @@ export async function batchImportEvents(request: FastifyRequest<BatchImportReque
       const errorMessage = insertError instanceof Error ? insertError.message : "Unknown error";
       console.error("Failed to insert events:", errorMessage);
 
+      if (isLastBatch) {
+        importQuotaManager.completeImport(siteRecord.organizationId);
+      }
+
       return reply.status(500).send({
         error: `Failed to insert events: ${errorMessage}`,
       });

@@ -332,6 +332,8 @@ const socialMediaTools = [
   ...logoGeneratorTools,
 ];
 
+const totalToolCount = calculators.length + aiPoweredTools.length + otherTools.length + socialMediaTools.length;
+
 function ToolCard({ tool }: { tool: { href: string; icon: any; title: string; description: string } }) {
   const Icon = tool.icon;
   return (
@@ -357,7 +359,7 @@ export default function ToolsPage() {
       <div className="max-w-[1300px] mx-auto px-6 py-20">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-neutral-900 dark:text-white mb-4">Free Marketing Tools</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-neutral-900 dark:text-white mb-4">{totalToolCount} Free Marketing Tools</h1>
           <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
             Powerful calculators and generators to help you make data-driven marketing decisions. All tools are 100%
             free to use.

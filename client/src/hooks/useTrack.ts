@@ -23,12 +23,5 @@ export function useTrack() {
         sites: sites?.sites.map(site => site.domain),
       });
     }
-  }, [
-    user.data?.user?.id,
-    window?.rybbit,
-    subscription?.planName,
-    isLoading,
-    isPendingActiveOrganization,
-    isPendingSites,
-  ]);
+  }, [user.data?.user?.id, subscription?.planName, isLoading, isPendingActiveOrganization, isPendingSites]);
 }

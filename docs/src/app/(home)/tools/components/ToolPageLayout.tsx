@@ -82,16 +82,10 @@ export function ToolPageLayout({
                     <AccordionItem
                       key={index}
                       value={`item-${index}`}
-                      className={
-                        index < faqs.length - 1 ? "border-b border-neutral-300/50 dark:border-neutral-800/50" : ""
-                      }
+                      className={index === faqs.length - 1 ? "border-b-0" : ""}
                     >
-                      <AccordionTrigger className="px-6 py-4 text-base font-medium hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-                        {faq.question}
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pb-4 text-neutral-700 dark:text-neutral-300">
-                        {faq.answer}
-                      </AccordionContent>
+                      <AccordionTrigger>{faq.question}</AccordionTrigger>
+                      <AccordionContent>{faq.answer}</AccordionContent>
                     </AccordionItem>
                   ))}
                 </Accordion>

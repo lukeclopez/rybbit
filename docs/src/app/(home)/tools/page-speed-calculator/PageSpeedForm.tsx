@@ -325,22 +325,18 @@ export function PageSpeedForm() {
         <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-6">Frequently Asked Questions</h2>
         <div className="bg-neutral-100/50 dark:bg-neutral-800/20 backdrop-blur-sm border border-neutral-300/50 dark:border-neutral-800/50 rounded-xl overflow-hidden">
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1" className="border-b border-neutral-300/50 dark:border-neutral-800/50">
-              <AccordionTrigger className="px-6 py-4 text-base font-medium hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-                How much does page speed really matter?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-neutral-700 dark:text-neutral-300">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>How much does page speed really matter?</AccordionTrigger>
+              <AccordionContent>
                 Studies show that for every 1 second delay in page load time, conversions decrease by approximately 7%,
                 bounce rate increases by 7%, and customer satisfaction drops by 16%. A 2-second delay can result in
                 abandonment rates up to 87% for e-commerce sites. This makes page speed a critical business metric.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-2" className="border-b border-neutral-300/50 dark:border-neutral-800/50">
-              <AccordionTrigger className="px-6 py-4 text-base font-medium hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-                What are Google Core Web Vitals and why are they important?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-neutral-700 dark:text-neutral-300">
+            <AccordionItem value="item-2">
+              <AccordionTrigger>What are Google Core Web Vitals and why are they important?</AccordionTrigger>
+              <AccordionContent>
                 Google Core Web Vitals are three key metrics that measure user experience: Largest Contentful Paint
                 (LCP, visual loading speed), First Input Delay (FID, responsiveness), and Cumulative Layout Shift (CLS,
                 visual stability). Google uses these metrics as ranking factors in search results, making them essential
@@ -348,22 +344,18 @@ export function PageSpeedForm() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-3" className="border-b border-neutral-300/50 dark:border-neutral-800/50">
-              <AccordionTrigger className="px-6 py-4 text-base font-medium hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-                What's a good page load time?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-neutral-700 dark:text-neutral-300">
+            <AccordionItem value="item-3">
+              <AccordionTrigger>What's a good page load time?</AccordionTrigger>
+              <AccordionContent>
                 Google recommends pages load in under 3 seconds on mobile. However, the faster the better—pages that
                 load in under 1 second see significantly higher engagement. Amazon found that every 100ms improvement in
                 load time increased revenue by 1%. Most successful e-commerce sites target between 1-2 seconds.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-4" className="border-b border-neutral-300/50 dark:border-neutral-800/50">
-              <AccordionTrigger className="px-6 py-4 text-base font-medium hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-                What are the best ways to improve page speed?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-neutral-700 dark:text-neutral-300">
+            <AccordionItem value="item-4">
+              <AccordionTrigger>What are the best ways to improve page speed?</AccordionTrigger>
+              <AccordionContent>
                 Key improvements include: optimizing images (compress and use modern formats like WebP), minifying
                 CSS/JS files, enabling browser caching, using a Content Delivery Network (CDN), reducing server response
                 time, eliminating render-blocking resources, lazy-loading below-the-fold content, and choosing
@@ -375,11 +367,9 @@ export function PageSpeedForm() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-5">
-              <AccordionTrigger className="px-6 py-4 text-base font-medium hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-                How can analytics tools affect my page speed?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-neutral-700 dark:text-neutral-300">
+            <AccordionItem value="item-5" className="border-b-0">
+              <AccordionTrigger>How can analytics tools affect my page speed?</AccordionTrigger>
+              <AccordionContent>
                 Many analytics tools can significantly impact page performance by loading large scripts synchronously
                 and making blocking network requests. This reduces your page's speed and negatively affects user
                 experience. Tools like Rybbit are designed to minimize this impact with lightweight asynchronous loading

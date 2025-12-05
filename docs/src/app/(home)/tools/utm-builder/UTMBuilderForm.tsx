@@ -177,29 +177,23 @@ export function UTMBuilderForm() {
         <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-6">Frequently Asked Questions</h2>
         <div className="bg-neutral-100/50 dark:bg-neutral-800/20 backdrop-blur-sm border border-neutral-300/50 dark:border-neutral-800/50 rounded-xl overflow-hidden">
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1" className="border-b border-neutral-300/50 dark:border-neutral-800/50">
-              <AccordionTrigger className="px-6 py-4 text-base font-medium hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-                What is UTM tracking?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-neutral-700 dark:text-neutral-300">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>What is UTM tracking?</AccordionTrigger>
+              <AccordionContent>
                 UTM (Urchin Tracking Module) parameters are tags added to URLs that help you track the effectiveness of your marketing campaigns in analytics tools like Rybbit, Google Analytics, and others. They tell you exactly where your traffic is coming from and how your campaigns perform.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-2" className="border-b border-neutral-300/50 dark:border-neutral-800/50">
-              <AccordionTrigger className="px-6 py-4 text-base font-medium hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-                What are the required UTM parameters?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-neutral-700 dark:text-neutral-300">
+            <AccordionItem value="item-2">
+              <AccordionTrigger>What are the required UTM parameters?</AccordionTrigger>
+              <AccordionContent>
                 The three required parameters are: <strong>utm_source</strong> (identifies the source like google or newsletter), <strong>utm_medium</strong> (identifies the medium like cpc or email), and <strong>utm_campaign</strong> (identifies the specific campaign like summer_sale).
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-3" className="border-b border-neutral-300/50 dark:border-neutral-800/50">
-              <AccordionTrigger className="px-6 py-4 text-base font-medium hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-                How do I track UTM links with Rybbit?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-neutral-700 dark:text-neutral-300">
+            <AccordionItem value="item-3">
+              <AccordionTrigger>How do I track UTM links with Rybbit?</AccordionTrigger>
+              <AccordionContent>
                 Once you have Rybbit installed on your website, UTM parameters are automatically tracked. You can view your campaign performance in your{" "}
                 <Link href="https://app.rybbit.io" className="text-emerald-600 dark:text-emerald-400 hover:underline">
                   Rybbit dashboard
@@ -208,20 +202,16 @@ export function UTMBuilderForm() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-4" className="border-b border-neutral-300/50 dark:border-neutral-800/50">
-              <AccordionTrigger className="px-6 py-4 text-base font-medium hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-                What are optional UTM parameters?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-neutral-700 dark:text-neutral-300">
+            <AccordionItem value="item-4">
+              <AccordionTrigger>What are optional UTM parameters?</AccordionTrigger>
+              <AccordionContent>
                 <strong>utm_term</strong> is used for tracking paid search keywords, while <strong>utm_content</strong> helps differentiate between different ads or links within the same campaign. These are optional but useful for deeper campaign analysis and A/B testing.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-5">
-              <AccordionTrigger className="px-6 py-4 text-base font-medium hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-                What naming conventions should I follow?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-neutral-700 dark:text-neutral-300">
+            <AccordionItem value="item-5" className="border-b-0">
+              <AccordionTrigger>What naming conventions should I follow?</AccordionTrigger>
+              <AccordionContent>
                 Use lowercase letters and underscores instead of spaces (e.g., summer_sale, not Summer Sale). Be consistent across campaigns so data is properly grouped in analytics. Avoid special characters and keep names descriptive but concise.
               </AccordionContent>
             </AccordionItem>

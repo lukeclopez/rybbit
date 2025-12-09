@@ -10,6 +10,7 @@
     "track-events",
     "identify-users",
     "guides",
+    "proxy-guide",
     "sdks",
     "api",
     "hiding-own-traffic",

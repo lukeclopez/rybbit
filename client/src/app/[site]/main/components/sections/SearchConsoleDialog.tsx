@@ -1,4 +1,9 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
 import { Input } from "@/components/ui/input";
 import {
   createColumnHelper,
@@ -95,22 +100,22 @@ export function SearchConsoleDialog({ title, dimension, renderName, expanded, cl
 
   if (isLoading || !data) {
     return (
-      <Dialog open={expanded} onOpenChange={close}>
-        <DialogContent className="max-w-[1000px] w-[calc(100vw-2rem)] p-2 sm:p-4">
+      <ResponsiveDialog open={expanded} onOpenChange={close}>
+        <ResponsiveDialogContent className="max-w-[1000px] w-[calc(100vw-2rem)] p-2 sm:p-4 space-y-2">
           <div className="flex justify-center items-center h-40">
             <Loader2 className="h-8 w-8 animate-spin text-neutral-600 dark:text-neutral-400" />
           </div>
-        </DialogContent>
-      </Dialog>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     );
   }
 
   return (
-    <Dialog open={expanded} onOpenChange={close}>
-      <DialogContent className="max-w-[1000px] w-[calc(100vw-2rem)] p-2 sm:p-4">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
+    <ResponsiveDialog open={expanded} onOpenChange={close}>
+      <ResponsiveDialogContent className="max-w-[1000px] w-[calc(100vw-2rem)] p-2 sm:p-4 space-y-2">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>{title}</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-neutral-600 dark:text-neutral-400" />
           <Input
@@ -179,7 +184,7 @@ export function SearchConsoleDialog({ title, dimension, renderName, expanded, cl
             )}
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

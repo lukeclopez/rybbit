@@ -50,7 +50,7 @@ function OutboundLinks({ expanded, close }: { expanded: boolean; close: () => vo
           <div>Outbound Links</div>
           <div>Clicks</div>
         </div>
-        <OutboundLinksList outboundLinks={(outboundLinksData || []).slice(0, 10)} isLoading={isLoadingOutboundLinks} />
+        <OutboundLinksList outboundLinks={outboundLinksData || []} isLoading={isLoadingOutboundLinks} />
         <OutboundLinksDialog outboundLinks={outboundLinksData || []} expanded={expanded} close={close} />
       </div>
     </>

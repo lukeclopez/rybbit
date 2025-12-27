@@ -297,7 +297,7 @@ export function SiteConfiguration({ siteMetadata, disabled = false, onClose }: S
   );
 
   return (
-    <div className="pt-4 space-y-6 max-h-[70vh] overflow-y-auto">
+    <div className="pt-4 pb-6 space-y-6 max-h-[70vh] overflow-y-auto">
       {/* Privacy & Security Settings */}
       <div className="space-y-4">{renderToggleSection(privacyToggles, "Privacy & Security")}</div>
 

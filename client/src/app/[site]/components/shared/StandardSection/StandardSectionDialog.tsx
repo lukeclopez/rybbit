@@ -1,4 +1,9 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
 import { Input } from "@/components/ui/input";
 import { TableSortIndicator } from "@/components/ui/table";
 import { FilterParameter } from "@rybbit/shared";
@@ -191,23 +196,23 @@ export function StandardSectionDialog({
 
   if (isLoading || !data) {
     return (
-      <Dialog open={expanded} onOpenChange={close}>
-        <DialogContent className="max-w-[1000px] w-[calc(100vw-2rem)] p-2 sm:p-4">
+      <ResponsiveDialog open={expanded} onOpenChange={close}>
+        <ResponsiveDialogContent className="max-w-[1000px] w-[calc(100vw-2rem)] p-2 sm:p-4">
           <div className="flex justify-center items-center h-40">
             <Loader2 className="h-8 w-8 animate-spin text-neutral-600 dark:text-neutral-400" />
           </div>
-        </DialogContent>
-      </Dialog>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     );
   }
   const totalCount = data.pages[0]?.totalCount || 0;
 
   return (
-    <Dialog open={expanded} onOpenChange={close}>
-      <DialogContent className="max-w-[1000px] w-screen max-h-[1000px] h-[calc(100vh-2rem)] p-2 sm:p-4 flex flex-col gap-2">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
+    <ResponsiveDialog open={expanded} onOpenChange={close}>
+      <ResponsiveDialogContent className="max-w-[1000px] w-screen max-h-[1000px] h-[calc(100vh-2rem)] p-2 sm:p-4 flex flex-col gap-2">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>{title}</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
         <Input
           type="text"
           placeholder={`Filter ${allItems.length} items...`}
@@ -292,7 +297,7 @@ export function StandardSectionDialog({
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

@@ -5,22 +5,20 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogTrigger,
+} from "@/components/ui/responsive-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { SiteResponse, useGetSite } from "@/api/admin/sites";
 import { useUserOrganizations } from "@/api/admin/organizations";
+import { SiteResponse, useGetSite } from "@/api/admin/sites";
+import { ImportManager } from "./ImportManager";
 import { ScriptBuilder } from "./ScriptBuilder";
 import { SiteConfiguration } from "./SiteConfiguration";
-import { ImportManager } from "./ImportManager";
 
 export function SiteSettings({ siteId, trigger }: { siteId: number; trigger?: React.ReactNode }) {
   const { data: siteMetadata, isLoading, error } = useGetSite(siteId);
@@ -44,19 +42,19 @@ function SiteSettingsInner({ siteMetadata, trigger }: { siteMetadata: SiteRespon
   }
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
+    <ResponsiveDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <ResponsiveDialogTrigger asChild>
         {trigger ?? (
           <Button variant="ghost" size="icon">
             <Settings className="h-4 w-4" />
           </Button>
         )}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[750px]">
-        <DialogHeader>
-          <DialogTitle>Site Settings</DialogTitle>
-          <DialogDescription>Manage settings for {siteMetadata.domain}</DialogDescription>
-        </DialogHeader>
+      </ResponsiveDialogTrigger>
+      <ResponsiveDialogContent className="sm:max-w-[750px] p-4 sm:p-6 space-y-2">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Site Settings</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>Manage settings for {siteMetadata.domain}</ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="pb-4">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="settings">Site Settings</TabsTrigger>
@@ -76,13 +74,13 @@ function SiteSettingsInner({ siteMetadata, trigger }: { siteMetadata: SiteRespon
             <SiteConfiguration siteMetadata={siteMetadata} disabled={disabled} onClose={() => setDialogOpen(false)} />
           </TabsContent>
         </Tabs>
-
-        <DialogFooter>
-          <DialogClose asChild>
+        {/* 
+        <ResponsiveDialogFooter className="pb-4">
+          <ResponsiveDialogClose asChild>
             <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </ResponsiveDialogClose>
+        </ResponsiveDialogFooter> */}
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

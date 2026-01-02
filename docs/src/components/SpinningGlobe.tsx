@@ -602,7 +602,7 @@ export function SpinningGlobe() {
     const fetchSessions = async () => {
       try {
         const response = await fetch(
-          "https://demo.rybbit.com/api/sessions/1?past_minutes_start=120&past_minutes_end=0&filters=[]&page=1&limit=100"
+          "https://demo.rybbit.com/api/sites/1/sessions?past_minutes_start=120&past_minutes_end=0&filters=[]&page=1&limit=100"
         );
         const data = await response.json();
         setSessions(data.data || []);

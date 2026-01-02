@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useIntersectionObserver } from "@uidotdev/usehooks";
+import { useEffect } from "react";
 import { useGetEventsInfinite } from "../../../../api/analytics/hooks/events/useGetEvents";
 import { NothingFound } from "../../../../components/NothingFound";
 import { formatter } from "../../../../lib/utils";
@@ -9,41 +10,24 @@ import { ErrorState } from "../../../../components/ErrorState";
 import { ScrollArea } from "../../../../components/ui/scroll-area";
 
 export function EventLog() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-
   // Fetch events with infinite scrolling
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetEventsInfinite({
     pageSize: 100,
   });
 
-  // Handle scroll for infinite loading
-  const handleScroll = useCallback(() => {
-    if (!loadMoreRef.current || !containerRef.current || !hasNextPage || isFetchingNextPage) {
-      return;
-    }
+  // Use the intersection observer hook
+  const [ref, entry] = useIntersectionObserver({
+    threshold: 0,
+    root: null,
+    rootMargin: "0px 0px 100px 0px",
+  });
 
-    const container = containerRef.current;
-    const loadMoreElement = loadMoreRef.current;
-    const containerRect = container.getBoundingClientRect();
-    const loadMoreRect = loadMoreElement.getBoundingClientRect();
-
-    // Check if the load more element is visible in the viewport
-    if (loadMoreRect.top <= containerRect.bottom + 100) {
+  // Fetch next page when intersection observer detects the target is visible
+  useEffect(() => {
+    if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage && !isLoading) {
       fetchNextPage();
     }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  // Set up scroll event listener
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    container.addEventListener("scroll", handleScroll);
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-    };
-  }, [handleScroll]);
+  }, [entry?.isIntersecting, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading]);
 
   // Flatten all pages of data
   const allEvents = data?.pages.flatMap(page => page.data) || [];
@@ -73,22 +57,19 @@ export function EventLog() {
 
   return (
     <ScrollArea className="h-[80vh]">
-      <div ref={containerRef} className="h-full pr-2 overflow-x-hidden">
+      <div className="h-full pr-2 overflow-x-hidden">
         {allEvents.map((event, index) => (
           <EventLogItem key={`${event.timestamp}-${index}`} event={event} />
         ))}
 
-        {/* Loading state for next page */}
-        {hasNextPage && (
-          <div className="py-2">
-            {Array.from({ length: 3 }).map((_, index) => (
+        {/* Infinite scroll sentinel */}
+        <div ref={ref} className="py-2">
+          {isFetchingNextPage && (
+            Array.from({ length: 3 }).map((_, index) => (
               <EventLogItemSkeleton key={`next-page-${index}`} />
-            ))}
-          </div>
-        )}
-
-        {/* Invisible element for scroll detection */}
-        {hasNextPage && <div ref={loadMoreRef} className="h-1" />}
+            ))
+          )}
+        </div>
       </div>
       {/* Pagination info */}
       {data?.pages[0]?.pagination && (

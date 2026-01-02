@@ -95,7 +95,7 @@ export async function fetchSessionReplays(
     ...toQueryParams(params),
     limit: params.limit,
     offset: params.offset,
-    min_duration: params.minDuration,
+    minDuration: params.minDuration,
   };
 
   const response = await authedFetch<SessionReplayListResponse>(`/sites/${site}/session-replay/list`, queryParams);

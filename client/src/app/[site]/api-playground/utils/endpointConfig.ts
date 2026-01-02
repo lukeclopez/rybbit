@@ -94,14 +94,6 @@ export const endpointCategories: EndpointCategory[] = [
         hasCommonParams: false,
       },
       {
-        method: "GET",
-        path: "/organizations/:organizationId/sites",
-        name: "Get Organization Sites",
-        description: "Returns all sites within an organization with session counts and subscription info",
-        hasCommonParams: false,
-        pathParams: ["organizationId"],
-      },
-      {
         method: "POST",
         path: "/organizations/:organizationId/sites",
         name: "Create Site",

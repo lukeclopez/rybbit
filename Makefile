@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 IMAGE_TAG ?= latest
-BASE_URL ?= http://backend:3001
+BASE_URL ?= http://localhost:3001
 HOST_BACKEND_PORT ?= 127.0.0.1:3001:3001
 HOST_CLIENT_PORT ?= 127.0.0.1:3002:3002
 DISABLE_SIGNUP ?=
@@ -74,3 +74,9 @@ client-dev:
 
 test:
 	@(cd server && npm run test)
+
+reset:
+	docker compose down -v
+	docker builder prune -a -f
+	rm -rf node_modules
+	docker compose up -d --build

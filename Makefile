@@ -1,15 +1,9 @@
 SHELL := /bin/bash
 
-IMAGE_TAG ?= latest
-BASE_URL ?= http://localhost:3001
-HOST_BACKEND_PORT ?= 127.0.0.1:3001:3001
-HOST_CLIENT_PORT ?= 127.0.0.1:3002:3002
-DISABLE_SIGNUP ?=
-DISABLE_TELEMETRY ?=
-MAPBOX_TOKEN ?=
-BETTER_AUTH_SECRET ?= devsecret
-
-export IMAGE_TAG BASE_URL HOST_BACKEND_PORT HOST_CLIENT_PORT DISABLE_SIGNUP DISABLE_TELEMETRY MAPBOX_TOKEN BETTER_AUTH_SECRET
+# Check for .env.development file
+ifneq (,$(wildcard .env.development))
+    COMPOSE_FLAGS := --env-file .env.development
+endif
 
 .PHONY: install build up up-web down restart logs logs-tail ps clean prune format lint test server-dev client-dev
 
@@ -40,28 +34,28 @@ lint:
 	@(cd client && npm run lint || true)
 
 up:
-	docker compose up -d --build
+	docker compose $(COMPOSE_FLAGS) up -d --build
 
 up-web:
-	COMPOSE_PROFILES=with-webserver docker compose up -d --build
+	COMPOSE_PROFILES=with-webserver docker compose $(COMPOSE_FLAGS) up -d --build
 
 down:
-	docker compose down
+	docker compose $(COMPOSE_FLAGS) down
 
 restart:
-	docker compose restart
+	docker compose $(COMPOSE_FLAGS) restart
 
 logs:
-	docker compose logs --tail=200
+	docker compose $(COMPOSE_FLAGS) logs --tail=200
 
 logs-tail:
-	docker compose logs -f
+	docker compose $(COMPOSE_FLAGS) logs -f
 
 ps:
-	docker compose ps
+	docker compose $(COMPOSE_FLAGS) ps
 
 clean:
-	docker compose down -v
+	docker compose $(COMPOSE_FLAGS) down -v
 
 prune:
 	docker image prune -f && docker builder prune -f
@@ -76,7 +70,7 @@ test:
 	@(cd server && npm run test)
 
 reset:
-	docker compose down -v
+	docker compose $(COMPOSE_FLAGS) down -v
 	docker builder prune -a -f
 	rm -rf node_modules
-	docker compose up -d --build
+	docker compose $(COMPOSE_FLAGS) up -d --build

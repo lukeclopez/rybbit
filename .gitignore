@@ -48,3 +48,5 @@ coverage/
 .claude/
 
 AGENT_CONTEXT/
+
+.env.*

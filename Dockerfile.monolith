@@ -1,0 +1,105 @@
+# ==============================================
+# Stage 1: Build Shared Package
+# ==============================================
+FROM node:20-alpine AS shared-builder
+WORKDIR /app
+COPY shared ./shared
+WORKDIR /app/shared
+RUN npm install && npm run build
+
+# ==============================================
+# Stage 2: Build Next.js Client
+# ==============================================
+FROM node:20-alpine AS client-builder
+WORKDIR /app
+
+# Copy shared first
+COPY --from=shared-builder /app/shared ./shared
+
+# Install client dependencies
+RUN apk add --no-cache libc6-compat
+WORKDIR /app/client
+COPY client/package.json client/package-lock.json* ./
+RUN npm ci --legacy-peer-deps
+
+# Copy source and build
+COPY client/ ./
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build-time env vars (passed via docker build --build-arg)
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_DISABLE_SIGNUP
+ARG NEXT_PUBLIC_CLOUD
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
+ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
+ENV NEXT_PUBLIC_DISABLE_SIGNUP=${NEXT_PUBLIC_DISABLE_SIGNUP}
+ENV NEXT_PUBLIC_CLOUD=${NEXT_PUBLIC_CLOUD}
+ENV NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+
+RUN npm run build
+
+# ==============================================
+# Stage 3: Build Fastify Backend
+# ==============================================
+FROM node:20-alpine AS server-builder
+WORKDIR /app
+
+# Copy and use shared
+COPY --from=shared-builder /app/shared ./shared
+
+# Install server dependencies
+WORKDIR /app/server
+COPY server/package*.json ./
+RUN npm ci
+
+# Copy source and build
+COPY server/ .
+RUN npm run build
+
+# ==============================================
+# Stage 4: Production Runtime
+# ==============================================
+FROM node:20-alpine
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apk add --no-cache postgresql-client
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 appuser
+
+# --- Copy Backend ---
+COPY --from=server-builder /app/server/package*.json ./
+COPY --from=server-builder /app/server/GeoLite2-City.mmdb ./GeoLite2-City.mmdb
+COPY --from=server-builder /app/server/dist ./dist
+COPY --from=server-builder /app/server/node_modules ./node_modules
+COPY --from=server-builder /app/server/drizzle.config.ts ./drizzle.config.ts
+COPY --from=server-builder /app/server/public ./public
+COPY --from=server-builder /app/server/src ./src
+COPY --from=server-builder /app/shared ./shared
+
+# --- Copy Next.js Standalone ---
+# The standalone build goes into /app/client
+COPY --from=client-builder --chown=appuser:nodejs /app/client/.next/standalone /app/client
+COPY --from=client-builder --chown=appuser:nodejs /app/client/.next/static /app/client/.next/static
+COPY --from=client-builder --chown=appuser:nodejs /app/client/public /app/client/public
+
+# Copy entrypoint script
+COPY monolith-entrypoint.sh /monolith-entrypoint.sh
+RUN chmod +x /monolith-entrypoint.sh
+
+# Set ownership for the entire app directory
+RUN chown -R appuser:nodejs /app
+
+# We'll run Fastify on this port
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV MONOLITH_MODE=true
+EXPOSE 3000
+
+USER appuser
+
+ENTRYPOINT ["/monolith-entrypoint.sh"]
+CMD ["node", "dist/index.js"]

@@ -1,4 +1,5 @@
 import cors from "@fastify/cors";
+import httpProxy from "@fastify/http-proxy";
 import fastifyStatic from "@fastify/static";
 import { toNodeHandler } from "better-auth/node";
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from "fastify";
@@ -375,6 +376,18 @@ server.post("/api/identify", handleIdentify);
 // Register API routes with /api prefix
 server.register(apiRoutes, { prefix: "/api" });
 
+// In monolith mode, proxy all non-API requests to the Next.js standalone server
+if (process.env.MONOLITH_MODE === "true") {
+  server.register(httpProxy, {
+    upstream: "http://127.0.0.1:3002",
+    prefix: "/",
+    rewritePrefix: "/",
+    // http-proxy will handle any request that doesn't match earlier routes
+    // Since API routes are registered first, they take precedence
+  });
+  server.log.info("Monolith mode enabled: proxying non-API routes to Next.js on port 3002");
+}
+
 const start = async () => {
   try {
     console.info("Starting server...");
@@ -386,9 +399,10 @@ const start = async () => {
       reengagementService.startReengagementCron();
     }
 
-    // Start the server first
-    await server.listen({ port: 3001, host: "0.0.0.0" });
-    server.log.info("Server is listening on http://0.0.0.0:3001");
+    // Start the server - use PORT env var in monolith mode, default to 3001
+    const port = parseInt(process.env.PORT || "3001", 10);
+    await server.listen({ port, host: "0.0.0.0" });
+    server.log.info(`Server is listening on http://0.0.0.0:${port}`);
 
     // if (process.env.NODE_ENV === "production") {
     //   // Initialize uptime monitoring service in the background (non-blocking)

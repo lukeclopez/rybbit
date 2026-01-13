@@ -46,3 +46,7 @@ coverage/
 .cursor/
 
 .claude/
+
+AGENT_CONTEXT/
+
+.env.*

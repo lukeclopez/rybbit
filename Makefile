@@ -74,3 +74,48 @@ reset:
 	docker builder prune -a -f
 	rm -rf node_modules
 	docker compose $(COMPOSE_FLAGS) up -d --build
+
+# Monolith targets
+MONOLITH_IMAGE := rybbit-monolith
+MONOLITH_TAG := local
+
+.PHONY: monolith-build monolith-run monolith-up monolith-down monolith-logs
+
+monolith-build:
+	docker build -f Dockerfile.monolith --load \
+		--build-arg NEXT_PUBLIC_BACKEND_URL=http://localhost:3000 \
+		--build-arg NEXT_PUBLIC_DISABLE_SIGNUP=false \
+		-t $(MONOLITH_IMAGE):$(MONOLITH_TAG) .
+
+monolith-up: monolith-build
+	@echo "Starting databases..."
+	docker compose $(COMPOSE_FLAGS) up -d postgres clickhouse
+	@echo "Waiting for databases to be healthy..."
+	@sleep 5
+	@echo "Starting monolith container..."
+	docker run -d --name rybbit-monolith \
+		--network rybbit_default \
+		-p 3000:3000 \
+		-e NODE_ENV=production \
+		-e MONOLITH_MODE=true \
+		-e POSTGRES_HOST=postgres \
+		-e POSTGRES_PORT=5432 \
+		-e POSTGRES_DB=analytics \
+		-e POSTGRES_USER=frog \
+		-e POSTGRES_PASSWORD=frog \
+		-e CLICKHOUSE_HOST=http://clickhouse:8123 \
+		-e CLICKHOUSE_DB=analytics \
+		-e CLICKHOUSE_PASSWORD=frog \
+		-e BETTER_AUTH_SECRET=dev-secret-change-me \
+		-e BASE_URL=http://localhost:3000 \
+		$(MONOLITH_IMAGE):$(MONOLITH_TAG)
+	@echo "Monolith running at http://localhost:3000"
+
+monolith-down:
+	docker stop rybbit-monolith 2>/dev/null || true
+	docker rm rybbit-monolith 2>/dev/null || true
+
+monolith-logs:
+	docker logs -f rybbit-monolith
+
+monolith-restart: monolith-down monolith-up

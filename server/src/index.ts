@@ -182,10 +182,12 @@ server.register(cors, {
 });
 
 // Serve static files
-server.register(fastifyStatic, {
-  root: join(__dirname, "../public"),
-  prefix: "/", // or whatever prefix you need
-});
+if (process.env.MONOLITH_MODE !== "true") {
+  server.register(fastifyStatic, {
+    root: join(__dirname, "../public"),
+    prefix: "/", // or whatever prefix you need
+  });
+}
 
 server.register(
   async (fastify, options) => {
@@ -382,6 +384,7 @@ if (process.env.MONOLITH_MODE === "true") {
     upstream: "http://127.0.0.1:3002",
     prefix: "/",
     rewritePrefix: "/",
+    httpMethods: ["DELETE", "GET", "HEAD", "PATCH", "POST", "PUT"],
     // http-proxy will handle any request that doesn't match earlier routes
     // Since API routes are registered first, they take precedence
   });

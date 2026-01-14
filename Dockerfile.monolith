@@ -1,25 +1,55 @@
+# syntax=docker/dockerfile:1
+
 # ==============================================
 # Stage 1: Build Shared Package
 # ==============================================
-FROM node:20-alpine AS shared-builder
+FROM node:23-slim AS shared-builder
+
 WORKDIR /app
+
+# Install build tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3 \
+    python-is-python3 \
+    make \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY shared ./shared
 WORKDIR /app/shared
+# Safety: remove local modules if they slipped in
+RUN rm -rf node_modules
 RUN npm install && npm run build
 
 # ==============================================
 # Stage 2: Build Next.js Client
 # ==============================================
-FROM node:20-alpine AS client-builder
+FROM node:23-slim AS client-builder
 WORKDIR /app
+
+# Install build tools (needed for some node modules)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3 \
+    python-is-python3 \
+    make \
+    python-is-python3 \
+    make \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy shared first
 COPY --from=shared-builder /app/shared ./shared
 
 # Install client dependencies
-RUN apk add --no-cache libc6-compat
+
 WORKDIR /app/client
 COPY client/package.json client/package-lock.json* ./
+# Safety: remove local modules if they slipped in
+RUN rm -rf node_modules
 RUN npm ci --legacy-peer-deps
 
 # Copy source and build
@@ -42,8 +72,18 @@ RUN npm run build
 # ==============================================
 # Stage 3: Build Fastify Backend
 # ==============================================
-FROM node:20-alpine AS server-builder
+FROM node:23-slim AS server-builder
 WORKDIR /app
+
+# Install build tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3 \
+    python-is-python3 \
+    make \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy and use shared
 COPY --from=shared-builder /app/shared ./shared
@@ -51,6 +91,8 @@ COPY --from=shared-builder /app/shared ./shared
 # Install server dependencies
 WORKDIR /app/server
 COPY server/package*.json ./
+# Safety: remove local modules if they slipped in
+RUN rm -rf node_modules
 RUN npm ci
 
 # Copy source and build
@@ -60,15 +102,26 @@ RUN npm run build
 # ==============================================
 # Stage 4: Production Runtime
 # ==============================================
-FROM node:20-alpine
+FROM node:23-slim
 WORKDIR /app
 
-# Install runtime dependencies
-RUN apk add --no-cache postgresql-client
+# FIX: Install 'python-is-python3' so node-gyp finds 'python'
+# Also install postgresql-client for migrations
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    postgresql-client \
+    ca-certificates \
+    curl \
+    python3 \
+    python-is-python3 \
+    make \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 appuser
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs appuser
 
 # --- Copy Backend ---
 COPY --from=server-builder /app/server/package*.json ./
@@ -93,6 +146,7 @@ RUN chmod +x /monolith-entrypoint.sh
 # Set ownership for the entire app directory
 RUN chown -R appuser:nodejs /app
 
+# Dokku expects single PORT env (defaults to 5000)
 # We'll run Fastify on this port
 ENV NODE_ENV=production
 ENV PORT=3000

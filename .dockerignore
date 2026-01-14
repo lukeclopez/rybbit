@@ -1,0 +1,24 @@
+# Version Control
+.git
+.gitignore
+
+# Environment Variables
+.env*
+
+# Dependencies
+node_modules
+**/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build Outputs
+.next
+**/dist
+**/build
+**/out
+
+# System Files
+.DS_Store
+Thumbs.db

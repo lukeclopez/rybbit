@@ -1,11 +1,22 @@
 import { createClient } from "@clickhouse/client";
 import { IS_CLOUD } from "../../lib/const.js";
 
-export const clickhouse = createClient({
-  url: process.env.CLICKHOUSE_HOST,
-  database: process.env.CLICKHOUSE_DB,
-  password: process.env.CLICKHOUSE_PASSWORD,
-});
+// Parse CLICKHOUSE_URL - required
+// Format: clickhouse://user:password@host:port/database
+function getClickhouseConfig() {
+  if (!process.env.CLICKHOUSE_URL) {
+    throw new Error("CLICKHOUSE_URL environment variable is required");
+  }
+  const url = new URL(process.env.CLICKHOUSE_URL);
+  return {
+    url: `http://${url.hostname}:${url.port || "8123"}`,
+    database: url.pathname.slice(1) || undefined,
+    username: url.username || undefined,
+    password: url.password || undefined,
+  };
+}
+
+export const clickhouse = createClient(getClickhouseConfig());
 
 export const initializeClickhouse = async () => {
   // Create events table

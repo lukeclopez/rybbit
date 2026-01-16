@@ -5,13 +5,11 @@ import * as schema from "./schema.js";
 
 dotenv.config();
 
-// Create postgres connection
-const client = postgres({
-  host: process.env.POSTGRES_HOST || "postgres",
-  port: parseInt(process.env.POSTGRES_PORT || "5432", 10),
-  database: process.env.POSTGRES_DB,
-  username: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
+// Create postgres connection - DATABASE_URL required
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is required");
+}
+const client = postgres(process.env.DATABASE_URL, {
   onnotice: () => {},
   max: 20,
 });

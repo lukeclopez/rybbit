@@ -155,7 +155,7 @@ export default function Page() {
               rel="noopener"
               title={`${process.env.NEXT_PUBLIC_APP_NAME || "Rybbit"} - Privacy-Focused Web Analytics`}
             >
-              Web analytics powered by {process.env.NEXT_PUBLIC_APP_NAME || "Rybbit"}
+              Web analytics {process.env.NEXT_PUBLIC_APP_NAME ? `powered by ${process.env.NEXT_PUBLIC_APP_NAME}` : ""}
             </a>
           </div>
         )}

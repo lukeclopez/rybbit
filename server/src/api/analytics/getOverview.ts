@@ -89,7 +89,7 @@ const getQuery = (params: FilterParams, siteId: number) => {
     (
         -- Revenue metrics
         SELECT
-            SUM(toInt64OrZero(JSONExtractRaw(props, 'price'))) AS revenue
+            SUM(toInt64OrZero(JSONExtractRaw(toString(props), 'price'))) AS revenue
         FROM events
         WHERE
             site_id = {siteId:Int32}

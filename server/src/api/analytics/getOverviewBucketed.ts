@@ -152,7 +152,7 @@ FULL JOIN
 (
     SELECT
         toDateTime(${TimeBucketToFn[bucket]}(toTimeZone(timestamp, ${SqlString.escape(time_zone)}))) AS time,
-        SUM(toInt64OrZero(JSONExtractRaw(props, 'price'))) AS revenue
+        SUM(toInt64OrZero(JSONExtractRaw(toString(props), 'price'))) AS revenue
     FROM events
     WHERE
         site_id = {siteId:Int32}

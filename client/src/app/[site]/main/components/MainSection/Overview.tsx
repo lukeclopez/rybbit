@@ -178,6 +178,9 @@ export function Overview() {
 
   const currentSessions = overviewData?.data?.sessions ?? 0;
   const previousSessions = overviewDataPrevious?.data?.sessions ?? 0;
+ 
+  const currentRevenue = overviewData?.data?.revenue ?? 0;
+  const previousRevenue = overviewDataPrevious?.data?.revenue ?? 0;
 
   const currentPageviews = overviewData?.data?.pageviews ?? 0;
   const previousPageviews = overviewDataPrevious?.data?.pageviews ?? 0;
@@ -193,7 +196,14 @@ export function Overview() {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 items-center">
-      <Stat title="Unique Users" id="users" value={currentUsers} previous={previousUsers} isLoading={isLoading} />
+      <Stat
+        title="Revenue"
+        id="revenue"
+        value={currentRevenue}
+        previous={previousRevenue}
+        isLoading={isLoading}
+        postfix=" TZS"
+      />
       <Stat title="Sessions" id="sessions" value={currentSessions} previous={previousSessions} isLoading={isLoading} />
       <Stat
         title="Pageviews"

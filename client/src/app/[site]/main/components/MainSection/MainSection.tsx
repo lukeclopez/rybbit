@@ -8,20 +8,21 @@ import { BucketSelection } from "../../../../../components/BucketSelection";
 import { RybbitLogo } from "../../../../../components/RybbitLogo";
 import { useWhiteLabel } from "../../../../../hooks/useIsWhiteLabel";
 import { authClient } from "../../../../../lib/auth";
-import { useStore } from "../../../../../lib/store";
+import { StatType, useStore } from "../../../../../lib/store";
 import { cn } from "../../../../../lib/utils";
 import { ExportButton } from "../ExportButton";
 import { Chart } from "./Chart";
 import { Overview } from "./Overview";
 import { PreviousChart } from "./PreviousChart";
 
-const SELECTED_STAT_MAP = {
+const SELECTED_STAT_MAP: Record<StatType, string> = {
   pageviews: "Pageviews",
   sessions: "Sessions",
   pages_per_session: "Pages per Session",
   bounce_rate: "Bounce Rate",
   session_duration: "Session Duration",
   users: "Users",
+  revenue: "Revenue",
 };
 
 const tilt_wrap = Tilt_Warp({

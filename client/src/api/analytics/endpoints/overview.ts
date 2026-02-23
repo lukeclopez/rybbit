@@ -16,6 +16,7 @@ export type GetOverviewResponse = {
   pages_per_session: number;
   bounce_rate: number;
   session_duration: number;
+  revenue: number;
 };
 
 // Overview bucketed response type
@@ -27,6 +28,7 @@ export type GetOverviewBucketedResponse = {
   bounce_rate: number;
   session_duration: number;
   users: number;
+  revenue: number;
 }[];
 
 // Metric response type

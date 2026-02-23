@@ -10,6 +10,7 @@ import { Events } from "./components/sections/Events";
 import { Network } from "./components/sections/Network";
 import { Pages } from "./components/sections/Pages";
 import { Referrers } from "./components/sections/Referrers";
+import { Users } from "./components/sections/Users";
 import { SearchConsole } from "./components/sections/SearchConsole";
 import { Weekdays } from "./components/sections/Weekdays";
 
@@ -36,6 +37,7 @@ function MainPageContent() {
         <Devices />
         <Countries />
         <Events />
+        <Users />
         <Weekdays />
         {IS_CLOUD && <Network />}
         {IS_CLOUD && <SearchConsole />}

@@ -99,7 +99,7 @@ const recalculateTimeForTimezone = (time: Time, timezone: string): Time | null =
   }
 };
 
-export type StatType = "pageviews" | "sessions" | "users" | "pages_per_session" | "bounce_rate" | "session_duration";
+export type StatType = "pageviews" | "sessions" | "users" | "pages_per_session" | "bounce_rate" | "session_duration" | "revenue";
 
 type Store = {
   site: string;
@@ -153,7 +153,7 @@ export const useStore = create<Store>()(
                 wellKnown: "yesterday",
               },
           bucket: hasBucketInUrl ? state.bucket : "hour",
-          selectedStat: hasStatInUrl ? state.selectedStat : "users",
+          selectedStat: hasStatInUrl ? state.selectedStat : "revenue",
         }));
       },
       privateKey: null,
@@ -285,7 +285,7 @@ export const resetStore = () => {
   setSite("");
   setTime({ mode: "day", day: DateTime.now().toISODate(), wellKnown: "today" });
   setBucket("hour");
-  setSelectedStat("users");
+  setSelectedStat("revenue");
   setFilters([]);
 };
 

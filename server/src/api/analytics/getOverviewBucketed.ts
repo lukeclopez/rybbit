@@ -121,7 +121,8 @@ SELECT
     session_stats.bounce_rate * 100 AS bounce_rate,
     session_stats.session_duration,
     page_stats.pageviews,
-    page_stats.users
+    page_stats.users,
+    revenue_stats.revenue
 FROM
 (
     SELECT
@@ -146,6 +147,19 @@ FULL JOIN
         ${getTimeStatement(params)}
     GROUP BY time ORDER BY time ${isAllTime ? "" : getTimeStatementFill(params, bucket)}
 ) AS page_stats
+USING time
+FULL JOIN
+(
+    SELECT
+        toDateTime(${TimeBucketToFn[bucket]}(toTimeZone(timestamp, ${SqlString.escape(time_zone)}))) AS time,
+        SUM(toInt64OrZero(JSONExtractRaw(props, 'price'))) AS revenue
+    FROM events
+    WHERE
+        site_id = {siteId:Int32}
+        AND event_name = 'exhibit_b_coupon_redeemed'
+        ${timeStatement}
+    GROUP BY time ORDER BY time ${isAllTime ? "" : getTimeStatementFill(params, bucket)}
+) AS revenue_stats
 USING time
 ORDER BY time`;
 

@@ -11,6 +11,7 @@ type GetOverviewResponse = {
   pages_per_session: number;
   bounce_rate: number;
   session_duration: number;
+  revenue: number;
 };
 
 const getQuery = (params: FilterParams, siteId: number) => {
@@ -59,7 +60,8 @@ const getQuery = (params: FilterParams, siteId: number) => {
         session_stats.bounce_rate * 100 AS bounce_rate,
         session_stats.session_duration,
         page_stats.pageviews,
-        page_stats.users
+        page_stats.users,
+        revenue_stats.revenue
     FROM
     (
         -- Session-level metrics
@@ -82,7 +84,18 @@ const getQuery = (params: FilterParams, siteId: number) => {
             ${filterStatement}
             ${timeStatement}
             -- AND type = 'pageview'
-    ) AS page_stats`;
+    ) AS page_stats
+    CROSS JOIN
+    (
+        -- Revenue metrics
+        SELECT
+            SUM(toInt64OrZero(JSONExtractRaw(props, 'price'))) AS revenue
+        FROM events
+        WHERE
+            site_id = {siteId:Int32}
+            AND event_name = 'exhibit_b_coupon_redeemed'
+            ${timeStatement}
+    ) AS revenue_stats`;
 };
 
 export interface OverviewRequest {

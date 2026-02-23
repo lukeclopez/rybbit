@@ -100,6 +100,9 @@ import {
   unsubscribeMarketing,
   updateAccountSettings,
 } from "./api/user/index.js";
+import { createOrganization } from "./api/organizations/index.js";
+import { addUserToOrganizationIntegration, createApiKeyIntegration, removeUserFromOrganizationIntegration } from "./api/integration/index.js";
+import { verifyIntegrationSecret } from "./lib/verifyIntegrationSecret.js";
 import { initializeClickhouse } from "./db/clickhouse/clickhouse.js";
 import { initPostgres } from "./db/postgres/initPostgres.js";
 import {
@@ -289,6 +292,9 @@ async function sitesRoutes(fastify: FastifyInstance) {
 }
 
 async function organizationsRoutes(fastify: FastifyInstance) {
+  // Create organization with API token (no middleware - handler uses getUserIdFromRequest)
+  fastify.post("/organizations", createOrganization);
+
   // Organizations
   fastify.get("/organizations", getMyOrganizations);
   fastify.get("/organizations/:organizationId/sites", orgMember, getSitesFromOrg);
@@ -355,6 +361,14 @@ async function stripeAdminRoutes(fastify: FastifyInstance) {
   }
 }
 
+// Integration routes for third-party services
+async function integrationRoutes(fastify: FastifyInstance) {
+  const integrationAuth = { preHandler: [verifyIntegrationSecret] as any };
+  fastify.post("/api-keys", integrationAuth, createApiKeyIntegration);
+  fastify.post("/organizations/:organizationId/members", integrationAuth, addUserToOrganizationIntegration);
+  fastify.delete("/organizations/:organizationId/members", integrationAuth, removeUserFromOrganizationIntegration);
+}
+
 // Main API routes plugin - registers all domain plugins
 async function apiRoutes(fastify: FastifyInstance) {
   await fastify.register(analyticsRoutes);
@@ -364,6 +378,7 @@ async function apiRoutes(fastify: FastifyInstance) {
   await fastify.register(userRoutes);
   await fastify.register(gscRoutes);
   await fastify.register(stripeAdminRoutes);
+  await fastify.register(integrationRoutes, { prefix: "/integration" });
 
   // Health check
   fastify.get("/health", { logLevel: "silent" }, (_: FastifyRequest, reply: FastifyReply) => reply.send("OK"));

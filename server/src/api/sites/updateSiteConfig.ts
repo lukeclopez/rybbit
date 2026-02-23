@@ -44,6 +44,23 @@ const updateSiteConfigSchema = z.object({
 
 type UpdateSiteConfigRequest = z.infer<typeof updateSiteConfigSchema>;
 
+/**
+ * Determines if a site update is allowed based on origin and authentication method.
+ *
+ * Rules:
+ * 1. If origin is "rybbit", update is always allowed (standard access controls apply).
+ * 2. If origin is NOT "rybbit" (external), update is ONLY allowed if request is authenticated via API key (no user session).
+ */
+function isUpdateAllowedForOrigin(origin: string, user: any): boolean {
+  if (origin === "rybbit") {
+    return true;
+  }
+
+  // For external sites, only allow updates via API key (where user is undefined)
+  // If user is present, it means it's a session-based request (e.g. from UI), which is blocked.
+  return !user;
+}
+
 export async function updateSiteConfig(
   request: FastifyRequest<{ Params: { siteId: string }; Body: UpdateSiteConfigRequest }>,
   reply: FastifyReply
@@ -73,10 +90,16 @@ export async function updateSiteConfig(
     // Check if site exists
     const site = await db.query.sites.findFirst({
       where: eq(sites.siteId, siteId),
+      columns: { origin: true },
     });
 
     if (!site) {
       return reply.status(404).send({ error: "Site not found" });
+    }
+
+    // Check if update is allowed for this origin
+    if (!isUpdateAllowedForOrigin(site.origin, request.user)) {
+      return reply.status(403).send({ error: "This site is managed externally" });
     }
 
     // Additional validation for excluded IPs if provided
@@ -103,6 +126,7 @@ export async function updateSiteConfig(
 
     // Map the fields that exist in both request and database
     const directMappings = [
+      "name",
       "public",
       "saltUserIds",
       "blockBots",

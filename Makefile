@@ -74,3 +74,36 @@ reset:
 	docker builder prune -a -f
 	rm -rf node_modules
 	docker compose $(COMPOSE_FLAGS) up -d --build
+
+dev-db:
+	docker compose -f docker-compose.dev.yml up -d
+
+stop-db:
+	docker compose -f docker-compose.dev.yml down
+
+# Setup server environment variables for local development
+setup-server-env:
+	@echo "Setting up server environment..."
+	@cp .env.development server/.env
+	@# Replace database host/port for local access
+	@sed -i '' 's/postgres:5432/localhost:5433/g' server/.env
+	@# Add missing variables that are usually injected by docker-compose
+	@echo "" >> server/.env
+	@echo "POSTGRES_HOST=localhost" >> server/.env
+	@echo "POSTGRES_PORT=5433" >> server/.env
+	@echo "CLICKHOUSE_HOST=http://localhost:8123" >> server/.env
+	@echo "CLICKHOUSE_URL=http://default:frog@localhost:8123" >> server/.env
+
+dev-server: setup-server-env
+	@(cd server && npm run dev:watch)
+
+# Setup client environment variables for local development
+setup-client-env:
+	@echo "Setting up client environment..."
+	@cp .env.development client/.env.local
+	@# Client needs NEXT_PUBLIC_BACKEND_URL which defaults to BASE_URL in docker-compose
+	@echo "" >> client/.env.local
+	@echo "NEXT_PUBLIC_BACKEND_URL=http://localhost:3001" >> client/.env.local
+
+dev-client: setup-client-env
+	@(cd client && npm run dev)

@@ -14,12 +14,13 @@ export async function addSite(
       public?: boolean;
       saltUserIds?: boolean;
       blockBots?: boolean;
+      origin?: string;
     };
   }>,
   reply: FastifyReply
 ) {
   const { organizationId } = request.params;
-  const { domain, name, public: isPublic, saltUserIds, blockBots } = request.body;
+  const { domain, name, public: isPublic, saltUserIds, blockBots, origin } = request.body;
 
   // Validate domain format using regex
   const domainRegex = /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
@@ -48,6 +49,7 @@ export async function addSite(
         public: isPublic || false,
         saltUserIds: saltUserIds || false,
         blockBots: blockBots === undefined ? true : blockBots,
+        origin: origin || "rybbit",
       })
       .returning();
 

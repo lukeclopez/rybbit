@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { createAuthMiddleware } from "better-auth/api";
+import { createAuthMiddleware, APIError } from "better-auth/api";
 import { admin, captcha, emailOTP, organization, apiKey } from "better-auth/plugins";
 import dotenv from "dotenv";
 import { and, asc, eq } from "drizzle-orm";
@@ -50,7 +50,48 @@ const pluginList = [
             type: "string",
             required: false,
           },
+          origin: {
+            type: "string",
+            required: false,
+            defaultValue: "rybbit",
+          },
         },
+      },
+    },
+    organizationHooks: {
+      beforeUpdateOrganization: async (ctx) => {
+        const { organization, member, organizationId } = ctx as any;
+
+        // Block updates for externally managed organizations
+        const targetOrgId = organization?.id || organizationId || member?.organizationId;
+
+        if (targetOrgId) {
+          const foundOrg = await db.query.organization.findFirst({
+            where: eq(schema.organization.id, targetOrgId),
+            columns: { origin: true },
+          });
+
+          if (foundOrg && foundOrg.origin !== "rybbit") {
+            throw new APIError("FORBIDDEN", { message: "This organization is managed externally" });
+          }
+        }
+      },
+      beforeDeleteOrganization: async (ctx) => {
+        const { organization, member, organizationId } = ctx as any;
+        
+        // Block deletion for externally managed organizations
+        const targetOrgId = organization?.id || organizationId || member?.organizationId;
+
+        if (targetOrgId) {
+          const foundOrg = await db.query.organization.findFirst({
+            where: eq(schema.organization.id, targetOrgId),
+            columns: { origin: true },
+          });
+
+          if (foundOrg && foundOrg.origin !== "rybbit") {
+            throw new APIError("FORBIDDEN", { message: "This organization is managed externally" });
+          }
+        }
       },
     },
   }),
@@ -103,6 +144,12 @@ export const auth = betterAuth({
         defaultValue: true,
         input: true,
       },
+      origin: {
+        type: "string",
+        required: false,
+        defaultValue: "rybbit",
+        input: true,
+      },
       // scheduledTipEmailIds: {
       //   type: "string[]",
       //   required: false,
@@ -119,6 +166,7 @@ export const auth = betterAuth({
   plugins: pluginList,
   trustedOrigins: [
     "http://localhost:3002",
+    "http://127.0.0.1:3002",
     ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
   ],
   advanced: {
@@ -157,7 +205,39 @@ export const auth = betterAuth({
         },
       },
       update: {
-        before: async userUpdate => {
+        before: async (userUpdate, filter) => {
+          // Block updates for externally managed users
+          // userUpdate is the data being updated
+          // filter is the where clause (e.g. { id: "..." }) OR the request context
+          
+          let userId = (userUpdate as any)?.id || (filter as any)?.id || (filter as any)?.where?.id;
+          
+          // Handle case where filter is just the ID string
+          if (!userId && typeof filter === "string") {
+            userId = filter;
+          }
+
+          // Handle case where filter is the request context (BetterAuth internal)
+          if (!userId && (filter as any)?.context?.session?.user?.id) {
+            userId = (filter as any).context.session.user.id;
+          }
+
+          if (userId && typeof userId === "string") {
+            const foundUser = await db.query.user.findFirst({
+              where: eq(user.id, userId),
+              columns: { origin: true },
+            });
+
+            if (foundUser && foundUser.origin !== "rybbit") {
+              throw new APIError("FORBIDDEN", { message: "This account is managed externally" });
+            }
+          } else {
+             // Safety: If we can't identify the user, block the update to be safe
+             // This prevents the loophole where updates were allowed when ID wasn't found
+             console.warn("Blocked user update due to missing ID resolution:", { userUpdate, filterKeyFields: Object.keys(filter || {}) });
+             throw new APIError("FORBIDDEN", { message: "Security Check Failed: Unable to identify target user for update" });
+          }
+
           // Security: Prevent role field from being updated via regular update-user endpoint
           // Role changes should only go through the admin setRole endpoint
           if (userUpdate && typeof userUpdate === "object") {
@@ -172,6 +252,44 @@ export const auth = betterAuth({
             return {
               data: userUpdate,
             };
+          }
+        },
+      },
+      delete: {
+        before: async (userDelete: any, filter: any) => {
+          // Block deletion for externally managed users
+          // filter is the where clause (e.g. { id: "..." }) OR the request context
+          // In some contexts, 'userDelete' might BE the filter if only one arg is passed
+          
+          let userId = (userDelete as any)?.id || (filter as any)?.id || (filter as any)?.where?.id || (userDelete as any)?.where?.id;
+          
+          // Handle case where filter is just the ID string
+          if (!userId && typeof filter === "string") {
+            userId = filter;
+          }
+           if (!userId && typeof userDelete === "string") {
+            userId = userDelete;
+          }
+
+          // Handle case where filter is the request context (BetterAuth internal)
+          const sessionUserId = (filter as any)?.context?.session?.user?.id || (userDelete as any)?.context?.session?.user?.id;
+          if (!userId && sessionUserId) {
+            userId = sessionUserId;
+          }
+
+          if (userId && typeof userId === "string") {
+            const foundUser = await db.query.user.findFirst({
+              where: eq(user.id, userId),
+              columns: { origin: true },
+            });
+
+            if (foundUser && foundUser.origin !== "rybbit") {
+              throw new APIError("FORBIDDEN", { message: "This account is managed externally" });
+            }
+          } else {
+             // Safety: If we can't identify the user, block the deletion
+             console.warn("Blocked user deletion due to missing ID resolution:", { userDelete, filterKeyFields: Object.keys(filter || {}) });
+             throw new APIError("FORBIDDEN", { message: "Security Check Failed: Unable to identify target user for deletion" });
           }
         },
       },

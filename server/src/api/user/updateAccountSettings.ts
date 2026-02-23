@@ -21,6 +21,16 @@ export const updateAccountSettings = async (
       return reply.status(401).send({ error: "Unauthorized" });
     }
 
+    // Check if user is externally managed
+    const foundUser = await db.query.user.findFirst({
+      where: eq(user.id, userId),
+      columns: { origin: true },
+    });
+
+    if (foundUser && foundUser.origin !== "rybbit") {
+      return reply.status(403).send({ error: "This account is managed externally" });
+    }
+
     const validation = updateAccountSettingsSchema.safeParse(request.body);
 
     if (!validation.success) {

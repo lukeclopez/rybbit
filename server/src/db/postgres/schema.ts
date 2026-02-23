@@ -42,6 +42,7 @@ export const user = pgTable(
     monthlyEventCount: integer().default(0),
     sendAutoEmailReports: boolean().default(true),
     scheduledTipEmailIds: jsonb("scheduled_tip_email_ids").$type<string[]>().default([]),
+    origin: text().default("rybbit").notNull(),
   },
   table => [unique("user_username_unique").on(table.username), unique("user_email_unique").on(table.email)]
 );
@@ -82,6 +83,7 @@ export const sites = pgTable("sites", {
   trackIp: boolean().default(false),
   apiKey: text("api_key"), // Format: rb_{64_hex_chars} = 67 chars total
   privateLinkKey: text("private_link_key"),
+  origin: text("origin").default("rybbit").notNull(),
 });
 
 // Active sessions table
@@ -135,6 +137,7 @@ export const organization = pgTable(
     monthlyEventCount: integer().default(0),
     overMonthlyLimit: boolean().default(false),
     planOverride: text(), // Plan name override (e.g., "pro1m", "standard500k")
+    origin: text().default("rybbit").notNull(),
   },
   table => [unique("organization_slug_unique").on(table.slug)]
 );
@@ -237,6 +240,7 @@ export const apiKey = pgTable("apikey", {
   updatedAt: timestamp({ mode: "string" }).notNull(),
   permissions: text(),
   metadata: jsonb(),
+  origin: text().default("rybbit").notNull(),
 });
 
 // Goals table for tracking conversion goals

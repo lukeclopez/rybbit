@@ -1,4 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import { db } from "../../db/postgres/postgres.js";
+import * as schema from "../../db/postgres/schema.js";
+import { eq } from "drizzle-orm";
 import { auth } from "../../lib/auth.js";
 
 export const deleteApiKey = async (
@@ -10,6 +13,15 @@ export const deleteApiKey = async (
 
     if (!keyId) {
       return reply.status(400).send({ error: "Key ID is required" });
+    }
+
+    const foundKey = await db.query.apiKey.findFirst({
+      where: eq(schema.apiKey.id, keyId),
+      columns: { origin: true },
+    });
+
+    if (foundKey && foundKey.origin !== "rybbit") {
+      return reply.status(403).send({ error: "This API key is managed externally" });
     }
 
     const result = await auth.api.deleteApiKey({

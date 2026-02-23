@@ -15,6 +15,20 @@ export async function deleteSite(request: FastifyRequest<{ Params: { siteId: str
   // });
 
   // Delete the site from the sites table (related records will cascade delete automatically)
+  const site = await db.query.sites.findFirst({
+    where: eq(sites.siteId, Number(id)),
+    columns: { origin: true },
+  });
+
+  if (site && site.origin !== "rybbit") {
+    // If the site is managed externally, we only allow deletion via API key
+    // (where request.user is undefined). If request.user is defined, it means
+    // key is not used, or it's a session-based request.
+    if (request.user) {
+      return reply.status(403).send({ error: "This site is managed externally" });
+    }
+  }
+
   await db.delete(sites).where(eq(sites.siteId, Number(id)));
 
   siteConfig.removeSite(Number(id));

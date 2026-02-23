@@ -64,7 +64,7 @@ const SortHeader = ({ column, children }: any) => {
 };
 
 export default function UsersPage() {
-  useSetPageTitle("Rybbit · Users");
+  useSetPageTitle("Users");
 
   const { site } = useParams();
 

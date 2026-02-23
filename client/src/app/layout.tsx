@@ -25,6 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href={process.env.NEXT_PUBLIC_APP_FAVICON || "/favicon.ico"} />
+      </head>
       <ReactScan />
       <NuqsAdapter>
         <body className={cn("bg-background text-foreground h-full", inter.className)} suppressHydrationWarning>

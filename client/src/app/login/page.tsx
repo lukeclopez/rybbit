@@ -18,7 +18,7 @@ import { userStore } from "../../lib/userStore";
 
 export default function Page() {
   const { configs, isLoading: isLoadingConfigs } = useConfigs();
-  useSetPageTitle("Rybbit · Login");
+  useSetPageTitle("Login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -77,7 +77,7 @@ export default function Page() {
       <div className="w-full lg:w-[550px] flex flex-col p-6 lg:p-10">
         {/* Logo at top left */}
         <div className="mb-8">
-          <a href="https://rybbit.com" target="_blank" className="inline-block">
+          <a href={process.env.NEXT_PUBLIC_APP_URL || "https://rybbit.com"} target="_blank" className="inline-block">
             <RybbitTextLogo />
           </a>
         </div>
@@ -150,12 +150,12 @@ export default function Page() {
         {!IS_CLOUD && (
           <div className="text-xs text-muted-foreground mt-8">
             <a
-              href="https://rybbit.com"
+              href={process.env.NEXT_PUBLIC_APP_URL || "https://rybbit.com"}
               target="_blank"
               rel="noopener"
-              title="Rybbit - Open Source Privacy-Focused Web Analytics"
+              title={`${process.env.NEXT_PUBLIC_APP_NAME || "Rybbit"} - Privacy-Focused Web Analytics`}
             >
-              Open source web analytics powered by Rybbit
+              Web analytics powered by {process.env.NEXT_PUBLIC_APP_NAME || "Rybbit"}
             </a>
           </div>
         )}

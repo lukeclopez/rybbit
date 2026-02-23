@@ -233,7 +233,8 @@ export function ExportButton() {
 
       // Generate ZIP filename
       const dateStr = formatDateForFilename();
-      const zipFilename = `rybbit-export-${site}-${dateStr}.zip`;
+      const appNameSafe = (process.env.NEXT_PUBLIC_APP_NAME || "rybbit").toLowerCase().replace(/\s+/g, '-');
+      const zipFilename = `${appNameSafe}-export-${site}-${dateStr}.zip`;
 
       // Download the ZIP
       await downloadZip(nonEmptyFiles, zipFilename);

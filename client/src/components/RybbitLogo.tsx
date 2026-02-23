@@ -16,16 +16,20 @@ export function RybbitLogo({ width = 32, height = 32 }: { width?: number; height
   }
 
   if (whiteLabelImage) {
-    return <Image src={whiteLabelImage} alt="Rybbit" width={width} height={height} />;
+    return <Image src={whiteLabelImage} alt={process.env.NEXT_PUBLIC_APP_NAME || "Rybbit"} width={width} height={height} unoptimized={whiteLabelImage.startsWith('http')} />;
   }
+
+  const defaultLogo = process.env.NEXT_PUBLIC_APP_LOGO || "/rybbit.svg";
+  const isDefault = defaultLogo === "/rybbit.svg";
 
   return (
     <Image
-      src="/rybbit.svg"
-      alt="Rybbit"
+      src={defaultLogo}
+      alt={process.env.NEXT_PUBLIC_APP_NAME || "Rybbit"}
       width={width}
       height={height}
-      className="invert dark:invert-0"
+      className={isDefault ? "invert dark:invert-0" : ""}
+      unoptimized={defaultLogo.startsWith('http')}
     />
   );
 }
@@ -43,16 +47,20 @@ export function RybbitTextLogo({ width = 150, height = 34 }: { width?: number; h
   }
 
   if (whiteLabelImage) {
-    return <Image src={whiteLabelImage} alt="Rybbit" width={width} height={height} />;
+    return <Image src={whiteLabelImage} alt="Rybbit" width={width} height={height} unoptimized={whiteLabelImage.startsWith('http')} />;
   }
+
+  const defaultTextLogo = process.env.NEXT_PUBLIC_APP_TEXT_LOGO || "/rybbit-text.svg";
+  const isDefault = defaultTextLogo === "/rybbit-text.svg";
 
   return (
     <Image
-      src="/rybbit-text.svg"
-      alt="Rybbit"
+      src={defaultTextLogo}
+      alt={process.env.NEXT_PUBLIC_APP_NAME || "Rybbit"}
       width={width}
       height={height}
-      className="dark:invert-0 invert"
+      className={isDefault ? "dark:invert-0 invert" : ""}
+      unoptimized={defaultTextLogo.startsWith('http')}
     />
   );
 }

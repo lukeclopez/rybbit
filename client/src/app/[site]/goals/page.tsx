@@ -57,7 +57,7 @@ const GoalCardSkeleton = () => (
 );
 
 export default function GoalsPage() {
-  useSetPageTitle("Rybbit · Goals");
+  useSetPageTitle("Goals");
 
   const { site } = useStore();
   const [searchQuery, setSearchQuery] = useState("");

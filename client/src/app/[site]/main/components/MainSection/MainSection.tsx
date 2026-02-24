@@ -83,7 +83,7 @@ export function MainSection() {
                   className={cn("text-lg font-semibold flex items-center gap-1.5 opacity-75", tilt_wrap.className)}
                 >
                   <RybbitLogo width={20} height={20} />
-                  {process.env.NEXT_PUBLIC_MAIN_SECTION_APP_NAME || "rybbit"}
+                  {process.env.NEXT_PUBLIC_MAIN_SECTION_APP_NAME || "Crayon Media Ltd"}
                 </Link>
               )}
             </div>

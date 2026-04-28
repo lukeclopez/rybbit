@@ -293,7 +293,9 @@ export default function AppSumoSignupPage() {
       case 1:
         return (
           <div>
-            <h2 className="text-2xl font-semibold mb-2">Welcome to Rybbit!</h2>
+            <h2 className="text-2xl font-semibold mb-2">
+              Welcome to {process.env.NEXT_PUBLIC_APP_NAME || "Analytics"}!
+            </h2>
             <p className="text-sm text-muted-foreground mb-6">Activate your AppSumo license by creating an account</p>
             <div className="space-y-4">
               <AuthInput
@@ -463,7 +465,7 @@ export default function AppSumoSignupPage() {
 
         {/* Logo and title above the card */}
         <div className="relative z-10 mb-6 text-center">
-          <a href="https://rybbit.com" target="_blank" className="inline-block mb-2">
+          <a href={process.env.NEXT_PUBLIC_APP_URL || "/"} target="_blank" className="inline-block mb-2">
             <RybbitTextLogo />
           </a>
           <h1 className="text-lg text-neutral-600 dark:text-neutral-300">AppSumo License Activation</h1>
@@ -504,17 +506,6 @@ export default function AppSumoSignupPage() {
             <AuthError error={error} />
           </div>
         </Card>
-
-        <div className="text-xs text-muted-foreground relative z-10 mt-8">
-          <a
-            href="https://rybbit.com"
-            target="_blank"
-            rel="noopener"
-            title="Rybbit - Open Source Privacy-Focused Web Analytics"
-          >
-            Open source web analytics powered by Rybbit
-          </a>
-        </div>
       </div>
     </div>
   );

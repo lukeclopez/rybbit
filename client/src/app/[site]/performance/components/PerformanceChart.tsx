@@ -196,13 +196,15 @@ export function PerformanceChart() {
       <CardContent className="p-2 md:p-4 py-3 w-full">
         <div className="flex items-center justify-between px-2 md:px-0">
           <div className="flex items-center space-x-4">
-            <Link
-              href={session.data ? "/" : "https://rybbit.com"}
-              className={cn("text-lg font-semibold flex items-center gap-1.5 opacity-75", tilt_wrap.className)}
-            >
-              <RybbitLogo width={20} height={20} />
-              rybbit
-            </Link>
+            {!isWhiteLabel && (
+              <Link
+                href={session.data ? "/" : process.env.NEXT_PUBLIC_APP_URL || "/"}
+                className={cn("text-lg font-semibold flex items-center gap-1.5 opacity-75", tilt_wrap.className)}
+              >
+                <RybbitLogo width={20} height={20} />
+                {process.env.NEXT_PUBLIC_MAIN_SECTION_APP_NAME || process.env.NEXT_PUBLIC_APP_NAME || ""}
+              </Link>
+            )}
           </div>
           <div className="flex items-center space-x-4">
             <span className="text-sm text-neutral-600 dark:text-neutral-200">
@@ -300,7 +302,9 @@ export function PerformanceChart() {
               markers={markers}
               lineWidth={1}
               sliceTooltip={({ slice }: any) => {
-                const currentTime = DateTime.fromJSDate(new Date(slice.points[0].data.x), { zone: "utc" }).setZone(timezone);
+                const currentTime = DateTime.fromJSDate(new Date(slice.points[0].data.x), { zone: "utc" }).setZone(
+                  timezone
+                );
 
                 return (
                   <ChartTooltip>

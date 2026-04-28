@@ -4,7 +4,6 @@ import { isNil, round, throttle } from "lodash";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import type { GetSessionsResponse } from "../api/analytics/endpoints";
 import { useConfigs } from "../lib/configs";
 import "../app/[site]/globe/globe.css";
@@ -125,19 +124,8 @@ export function SpinningGlobe() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const { configs, isLoading: isLoadingConfigs } = useConfigs();
 
-  // Fetch demo sessions
-  const { data: sessionsData } = useQuery<{ data: GetSessionsResponse }>({
-    queryKey: ["demo-sessions"],
-    queryFn: async () => {
-      const response = await fetch(
-        "https://demo.rybbit.com/api/sites/1/sessions?past_minutes_start=120&past_minutes_end=0&filters=[]&page=1&limit=100"
-      );
-      return response.json();
-    },
-    staleTime: Infinity,
-  });
-
-  const sessions = sessionsData?.data || [];
+  // Demo sessions fetch removed (was hitting demo.rybbit.com)
+  const sessions: GetSessionsResponse = [];
 
   // Initialize map
   useEffect(() => {

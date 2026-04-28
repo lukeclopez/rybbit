@@ -106,7 +106,7 @@ export function CreateOrganizationDialog({ open, onOpenChange, onSuccess, trigge
             <Building2 className="h-6 w-6" />
             Create Your Organization
           </DialogTitle>
-          <DialogDescription>Set up your organization to get started with Rybbit</DialogDescription>
+          <DialogDescription>Set up your organization to get started</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">

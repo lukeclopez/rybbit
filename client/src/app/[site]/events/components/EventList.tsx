@@ -1,7 +1,7 @@
 "use client";
 
 import NumberFlow from "@number-flow/react";
-import { BookOpen, ChevronDown, ChevronRight, Info } from "lucide-react";
+import { ChevronDown, ChevronRight, Info } from "lucide-react";
 import { memo, useState } from "react";
 import { EventName } from "../../../../api/analytics/endpoints";
 import { useGetEventProperties } from "../../../../api/analytics/hooks/events/useGetEventProperties";
@@ -98,15 +98,6 @@ export function EventList({ events, isLoading, size = "small" }: EventListProps)
           <Info className="w-5 h-5" />
           No Data
         </div>
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.rybbit.com/docs/track-events"
-          className="text-neutral-500 dark:text-neutral-400 w-full text-center mt-2 flex flex-row gap-1 items-center justify-center text-sm hover:underline hover:text-neutral-700 dark:hover:text-neutral-300"
-        >
-          <BookOpen className="w-4 h-4" />
-          Learn how to track events
-        </a>
       </div>
     ) : (
       <NothingFound title={"No custom events found"} description={"Try a different date range or filter"} />

@@ -215,18 +215,6 @@ export function PlanDialog({ open, onOpenChange, currentPlanName, hasActiveSubsc
               </div>
             ))}
           </div>
-
-          {/* Features comparison link */}
-          <div className="mt-3 text-center">
-            <a
-              href="https://www.rybbit.com/pricing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-600 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-neutral-100 text-sm underline"
-            >
-              View detailed feature comparison →
-            </a>
-          </div>
         </DialogContent>
       </Dialog>
 

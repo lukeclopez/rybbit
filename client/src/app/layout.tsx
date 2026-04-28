@@ -41,12 +41,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Toaster />
             </TooltipProvider>
           </ThemeProvider>
-          {appEnv === "prod" && (
-            <Script src="https://demo.rybbit.com/api/script.js" data-site-id="21" strategy="afterInteractive" />
-          )}
-          {appEnv === "demo" && (
-            <Script src="https://demo.rybbit.com/api/script.js" data-site-id="22" strategy="afterInteractive" />
-          )}
         </body>
       </NuqsAdapter>
     </html>

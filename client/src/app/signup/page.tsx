@@ -395,13 +395,15 @@ function SignupPageContent() {
       <div className="w-full lg:w-[550px] flex flex-col p-6 lg:p-10">
         {/* Logo at top left */}
         <div className="mb-8">
-          <a href="https://rybbit.com" target="_blank" className="inline-block">
+          <a href={process.env.NEXT_PUBLIC_APP_URL || "/"} target="_blank" className="inline-block">
             <RybbitTextLogo />
           </a>
         </div>
 
         <div className="flex-1 flex flex-col justify-center w-full max-w-[550px] mx-auto">
-          <h1 className="text-lg text-neutral-600 dark:text-neutral-300 mb-6">Get started with Rybbit</h1>
+          <h1 className="text-lg text-neutral-600 dark:text-neutral-300 mb-6">
+            Get started with {process.env.NEXT_PUBLIC_APP_NAME || "Analytics"}
+          </h1>
 
           {/* Horizontal step indicator */}
           <div className="flex items-center w-full mb-8">
@@ -453,19 +455,6 @@ function SignupPageContent() {
             <AuthError error={error} />
           </div>
         </div>
-
-        {!IS_CLOUD && (
-          <div className="text-xs text-muted-foreground mt-8">
-            <a
-              href="https://rybbit.com"
-              target="_blank"
-              rel="noopener"
-              title="Rybbit - Open Source Privacy-Focused Web Analytics"
-            >
-              Open source web analytics powered by Rybbit
-            </a>
-          </div>
-        )}
       </div>
 
       {/* Right panel - globe (hidden on mobile/tablet) */}

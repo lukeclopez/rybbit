@@ -37,7 +37,7 @@ export function PricingCard({ isLoggedIn }: { isLoggedIn: boolean }) {
   async function handleSubscribe(planType: "standard" | "pro"): Promise<void> {
     // Handle custom tier by redirecting to email contact
     if (eventLimit === "Custom") {
-      window.location.href = "https://www.rybbit.com/contact";
+      window.location.href = process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/contact` : "/";
       return;
     }
 
@@ -303,7 +303,10 @@ export function PricingCard({ isLoggedIn }: { isLoggedIn: boolean }) {
             </div>
 
             {/* Contact button */}
-            <a href="https://www.rybbit.com/contact" className="w-full block">
+            <a
+              href={process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/contact` : "/"}
+              className="w-full block"
+            >
               <button className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-5 py-3 rounded-xl shadow-lg shadow-emerald-900/20 transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 cursor-pointer">
                 Contact us
               </button>

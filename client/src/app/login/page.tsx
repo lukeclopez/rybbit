@@ -77,7 +77,7 @@ export default function Page() {
       <div className="w-full lg:w-[550px] flex flex-col p-6 lg:p-10">
         {/* Logo at top left */}
         <div className="mb-8">
-          <a href={process.env.NEXT_PUBLIC_APP_URL || "https://rybbit.com"} target="_blank" className="inline-block">
+          <a href={process.env.NEXT_PUBLIC_APP_URL || "/"} target="_blank" className="inline-block">
             <RybbitTextLogo />
           </a>
         </div>
@@ -146,19 +146,6 @@ export default function Page() {
             )}
           </div>
         </div>
-
-        {!IS_CLOUD && (
-          <div className="text-xs text-muted-foreground mt-8">
-            <a
-              href={process.env.NEXT_PUBLIC_APP_URL || "https://rybbit.com"}
-              target="_blank"
-              rel="noopener"
-              title={`${process.env.NEXT_PUBLIC_APP_NAME || "Rybbit"} - Privacy-Focused Web Analytics`}
-            >
-              Web analytics {process.env.NEXT_PUBLIC_APP_NAME ? `powered by ${process.env.NEXT_PUBLIC_APP_NAME}` : ""}
-            </a>
-          </div>
-        )}
       </div>
 
       {/* Right panel - globe (hidden on mobile/tablet) */}

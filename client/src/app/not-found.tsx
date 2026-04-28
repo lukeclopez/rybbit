@@ -45,25 +45,6 @@ export default function NotFound() {
             </Link>
           </Button>
         </div>
-
-        {/* Help Links */}
-        <div className="pt-8 space-y-2">
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">Need help? Check out our resources:</p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <Link
-              href="https://rybbit.com/docs"
-              className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 underline-offset-4 hover:underline"
-            >
-              Documentation
-            </Link>
-            <Link
-              href="https://github.com/rybbit-io/rybbit"
-              className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 underline-offset-4 hover:underline"
-            >
-              GitHub
-            </Link>
-          </div>
-        </div>
       </div>
 
       <Footer />
